@@ -4,6 +4,7 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import plotly.express as px
+import matplotlib.pyplot as plt 
 
 # Page configuration
 st.set_page_config(
@@ -11,58 +12,90 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded")
 
-st.title("Brede Velvaart van het Nederland")
+# Create a two-line title with different styles
+st.markdown("""
+<div style='text-align: left; padding: 10px;'>
+    <h1 style='color: #eb1d9c; font-size: 48px; font-weight: bold; margin-bottom: 0;'> cmo stamm.</h1>
+    <h2 style='color: black; font-size: 32px; font-weight: bold; margin-top: 0;'>Brede welvaart van het Nederland</h2>
+</div>
+""", unsafe_allow_html=True)
+
+
 
 #######################
 # CSS styling
 st.markdown("""
 <style>
-
-[data-testid="block-container"] {
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-top: 1rem;
-    padding-bottom: 0rem;
-    margin-bottom: -7rem;
+/* Customize sidebar */
+[data-testid="stSidebar"] {
+    background-color: #149bed; /* blue background */
+    padding: 10px; /* Add some padding for neatness */
+}
+            
+[data-testid="stSidebar"] h1 {
+    color: #ffffff; /* Customize white sidebar title color */
+    font-weight: bold;
 }
 
-[data-testid="stVerticalBlock"] {
+.stApp [data-testid="block-container"] {
     padding-left: 0rem;
     padding-right: 0rem;
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+    margin-bottom: -7rem;
+    background-color: #cce1ee !important; /* Light blue background */
 }
-
-[data-testid="stMetric"] {
-    background-color: #393939;
-    text-align: center;
-    padding: 15px 0;
-}
-
-[data-testid="stMetricLabel"] {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-[data-testid="stMetricDeltaIcon-Up"] {
-    position: relative;
-    left: 38%;
-    -webkit-transform: translateX(-50%);
-    -ms-transform: translateX(-50%);
-    transform: translateX(-50%);
-}
-
-[data-testid="stMetricDeltaIcon-Down"] {
-    position: relative;
-    left: 38%;
-    -webkit-transform: translateX(-50%);
-    -ms-transform: translateX(-50%);
-    transform: translateX(-50%);
-}
-
 </style>
 """, unsafe_allow_html=True)
 
+########################
+#translations dictionary
+translations = {
+    "en": {
+        "title": "Broad Prosperity Indicators",
+        "welcome": "Welcome to the Prosperity Dashboard!",
+        "prosperity_indicator": "Here are the prosperity indicators:",
+        "language_selection": "Language Selection",
+        "select_indicator": "Select an Indicator",
+        "Your selection": "You selected",
+    },
+    "nl": {
+        "title": "Indicatoren van Brede Welvaart",
+        "welcome": "Welkom bij het Welvaartsdashboard!",
+        "prosperity_indicator": "Hier zijn de welvaartsindicatoren:",
+        "language_selection": "Taal Selectie",
+        "select_indicator": "Selecteer een Indicator",
+        "Your selection": "Je hebt geselecteerd.",
+    },
+}
 
+translatecol0= {
+    "en": {
+        "What": "What is Broad Prosperity",
+        #BP def stands for Broad Prosperity definition
+        "BP def": '''Broad prosperity is about everything that makes life 'worthwhile'. 
+             It is about income and work, but also about the quality of housing, nature, health, 
+             and the well-being of people. This is the basis behind the concept of 'broad prosperity'. 
+             It is a different way of looking at society. Holistically, with attention to the 
+             interconnectedness of the factors that matter to the inhabitants.''',
+        "cmo": '''CMO STAMM is working on improving broad prosperity in the North.
+             We do this by raising awareness, monitoring and conducting research, 
+             and developing a vision and strategy for policy.''',
+    },
+    "nl": {
+        "What": "Wat is de Brede Welvaart",
+        "BP def": '''Brede welvaart gaat over alles wat het leven ‘de moeite waard maakt’. 
+             Het gaat over inkomen en werk, maar ook over de woonkwaliteit, natuur, 
+             gezondheid en het welbevinden van mensen. Dat is het uitgangspunt achter het concept 
+             ‘brede welvaart’. Het is een andere manier van kijken naar de samenleving. Integraal, 
+              met oog voor de samenhang tussen de factoren die er voor de inwoners toe doen.''',
+        "cmo": '''CMO STAMM werkt aan de verbetering van de brede welvaart in het Noorden. Dit doen 
+             wij door bewustwording te vergroten, het monitoren en uitvoeren van onderzoek en het 
+             ontwikkelen van een visie en strategie voor beleid.'''
+        
+                
+    },
+}
 #######################
 # Load data
 #df_meta = pd.read_csv('meta.csv')
@@ -72,6 +105,16 @@ df_indicators = pd.read_csv('indicatoren.csv', delimiter=';')
 # Sidebar
 with st.sidebar:
     st.title('Indicatoren van brede welvaart')
+
+    language = st.selectbox(
+        "Select Language/Selecteer Taal",
+        options=["en", "nl"],
+        format_func=lambda x: "English" if x == "en" else "Nederlands",
+    )
+
+    lang = "en" if language == "English" else "nl"
+    #using lang, the program knows which text to get from the translations dictionary
+
     # Check if df_indicators is a DataFrame and contains 'label'
     if isinstance(df_indicators, pd.DataFrame):
         if 'label' in df_indicators.columns:
@@ -79,7 +122,11 @@ with st.sidebar:
             options = df_indicators['label'].dropna().unique().tolist()
             if options:  # Ensure there are valid options
                 selected_indicator = st.selectbox("Select an indicator:", options=options)
-                st.write(f"You selected: {selected_indicator}")
+
+                # Filter df_indicators based on the selected indicator
+                filtered_df = df_indicators[(df_indicators['label'] == selected_indicator) & (df_indicators['jaar'] == 2020)]
+
+                st.write(f"Jij hebt geselecteerd: {selected_indicator}")
             else:
                 st.warning("No valid indicators found in the 'label' column.")
         else:
@@ -87,8 +134,22 @@ with st.sidebar:
     else:
         st.error("df_indicators is not a valid DataFrame.")
 
-    color_theme_list = ['blues', 'cividis', 'greens', 'inferno', 'magma', 'plasma', 'reds', 'rainbow', 'turbo', 'viridis']
-    selected_color_theme = st.selectbox('Select a color theme', color_theme_list)
+    statnaam_options = filtered_df['statnaam']
+
+    translations1 ={
+        "en": {
+            "Select 1st mun": "Select the first municipality:",
+            "Select 2nd mun": "Select the 2nd municipality:",
+        },
+        "nl": {
+            "Select 1st mun": "Selecteer de eerste gemeente:",
+            "Select 2nd mun": "Selecteer de tweede gemeente:"
+        },
+    }
+
+    selected_statnaam_1 = st.sidebar.selectbox(translations1[lang]['Select 1st mun'], statnaam_options)
+    selected_statnaam_2 = st.sidebar.selectbox(translations1[lang]['Select 2nd mun'], statnaam_options)
+    statnaams_filtered = filtered_df[filtered_df['statnaam'].isin([selected_statnaam_1, selected_statnaam_2])]
 
 #######################
 # Plots
@@ -206,20 +267,13 @@ def format_number(num):
 
 #######################
 # Dashboard Main Panel
-col = st.columns((2, 2), gap='medium')
+col = st.columns((2.25, 2.25, 1.5), gap='medium')
 
 with col[0]:
-    st.markdown('''**Wat is de Brede Welvaart**''')
-    st.markdown('''Brede welvaart gaat over alles wat het leven ‘de moeite waard maakt’. 
-                Het gaat over inkomen en werk, maar ook over de woonkwaliteit, natuur, 
-                gezondheid en het welbevinden van mensen. Dat is het uitgangspunt achter het concept 
-                ‘brede welvaart’. Het is een andere manier van kijken naar de samenleving. Integraal, 
-                met oog voor de samenhang tussen de factoren die er voor de inwoners toe doen.''')
-                
-    st.markdown('''CMO STAMM werkt aan de verbetering van de brede welvaart in het Noorden. Dit doen 
-                wij door bewustwording te vergroten, het monitoren en uitvoeren van onderzoek en het 
-                ontwikkelen van een visie en strategie voor beleid.''')
-    
+    st.markdown(f"### {translatecol0[language]['What']}")
+    st.markdown(translatecol0[language]['BP def'])
+    st.markdown(f"**{translatecol0[language]['cmo']}**")
+  
 with col[1]: 
     # Define the themes and their corresponding markdown content
     themes = {
@@ -465,3 +519,55 @@ with col[1]:
 
     # Display the markdown content based on the selected theme
     st.markdown(themes[selected_indicator], unsafe_allow_html=True)
+
+with col[2]:
+    st.expander('About', expanded=True)
+
+    # Filter rows based on label and year
+    df_lifesatisfaction = df_indicators[
+        (df_indicators['label'] == 'Tevredenheid met het leven') &  # Filter by label
+        (df_indicators['jaar'] == 2020) 
+    ]
+
+    st.markdown('#### Gemeenten gerangschikt van hoog naar laag in Tevredenheid met het Leven')
+
+    # Calculate the maximum value for 'waarde' column
+    max_value = df_lifesatisfaction['waarde'].dropna().max()  # Find the max value in the 'waarde' column
+
+    # Display the DataFrame using Streamlit
+    st.dataframe(
+    df_lifesatisfaction, 
+    column_order=("statnaam", "waarde"), 
+    hide_index=True, 
+    width=None, 
+    column_config={
+        "statnaam": st.column_config.TextColumn(
+            "Statnaam",
+        ),
+        "waarde": st.column_config.TextColumn(
+            "Waarde",  # This will now display as plain numbers
+        ),
+    }
+)
+
+    with st.expander('About', expanded=True):
+        st.write('''
+            - Data: [CBS data: Nederland (https://www.cbs.nl/nl-nl/visualisaties/regionale-monitor-brede-welvaart/indicator)]''')
+
+col1 = st.columns((2.25, 2.25, 1.5), gap='medium')
+
+with col1[0]:
+
+    # Create the bar chart
+    fig, ax = plt.subplots()
+    
+    for statnaam in [selected_statnaam_1, selected_statnaam_2]:
+        ax.bar(selected_indicator, filtered_df['waarde'].values.flatten(), label=statnaam)
+
+    # Customizing the plot
+    ax.set_ylabel('Values')
+    ax.set_title(f"Comparison between {selected_statnaam_1} and {selected_statnaam_2}")
+    ax.legend()
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
