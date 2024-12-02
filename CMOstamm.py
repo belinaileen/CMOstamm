@@ -561,7 +561,7 @@ with st.sidebar:
         st.error("df_indicators is not a valid DataFrame.")
     
     try:
-        indicator_key = filtered_df[filtered_df['label'] == selected_indicator, 'label'].iloc[0]
+        indicator_key = filtered_df.loc[filtered_df['label'] == selected_indicator, 'label'].iloc[0]
     except IndexError:
         st.error("Selected indicator not found in dataset.")
         indicator_key = None
@@ -724,14 +724,13 @@ with col[2]:
         (df_indicators['jaar'] == 2020) 
     ]
 
-    st.markdown('#### Gemeenten gerangschikt van hoog naar laag in Tevredenheid met het Leven')
+    df_lifesatisfaction_sorted = df_lifesatisfaction.sort_values(by='waarde', ascending=True)
 
-    # Calculate the maximum value for 'waarde' column
-    max_value = df_lifesatisfaction['waarde'].dropna().max()  # Find the max value in the 'waarde' column
+    st.markdown('#### Gemeenten gerangschikt van hoog naar laag in Tevredenheid met het Leven')
 
     # Display the DataFrame using Streamlit
     st.dataframe(
-    df_lifesatisfaction, 
+    df_lifesatisfaction_sorted, 
     column_order=("statnaam", "waarde"), 
     hide_index=True, 
     width=None, 
@@ -751,18 +750,4 @@ with col[2]:
 
 col1 = st.columns((2.25, 2.25, 1.5), gap='medium')
 
-with col1[0]:
 
-    # Create the bar chart
-    fig, ax = plt.subplots()
-    
-    for statnaam in [selected_statnaam_1, selected_statnaam_2]:
-        ax.bar(selected_indicator, filtered_df['waarde'].values.flatten(), label=statnaam)
-
-    # Customizing the plot
-    ax.set_ylabel('Values')
-    ax.set_title(f"Comparison between {selected_statnaam_1} and {selected_statnaam_2}")
-    ax.legend()
-
-    # Display the plot in Streamlit
-    st.pyplot(fig)
