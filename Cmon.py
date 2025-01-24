@@ -21,7 +21,7 @@ st.set_page_config(
     initial_sidebar_state="expanded")
 
 # Check the query parameter to determine which page to display
-query_params = st.query_params()
+query_params = st.query_params 
 page = query_params.get("page", ["home"])[0]
 
 if page == "home":
