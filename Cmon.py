@@ -66,7 +66,7 @@ if page == "home":
     # Load data
     #df_meta = pd.read_csv('meta.csv')
     df_indicators = pd.read_csv('indmaarmunn.csv')
-    df_thema = pd.read_excel('/users/belinaileen/desktop/cmostamm/thematicpath.xlsx')
+    df_thema = pd.read_excel('thematicpath.xlsx')
 
     #######################
     # Sidebar
