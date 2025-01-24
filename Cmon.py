@@ -13,7 +13,6 @@ import folium
 from folium.plugins import HeatMap
 from streamlit.components.v1 import iframe
 import json
-import mapdownload
 
 # Page configuration
 st.set_page_config(
