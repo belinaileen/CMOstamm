@@ -3,7 +3,6 @@ import numpy as np
 import streamlit as st
 import pandas as pd
 import altair as alt
-import plotly.express as px
 import pydeck as pdk  # For map visualization
 import geopandas as gpd
 from streamlit_folium import st_folium
