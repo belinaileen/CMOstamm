@@ -180,7 +180,7 @@ if page == "home":
 
     if st.button("map download", key="mapdownload"):
         # Set query parameter to "home" to redirect back to the home page
-        st.experimental_set_query_params(page="mapdownload")
+        st.query_params(page="mapdownload")
         
     st.write("Welkom bij het hoofddashboard. Gebruik de knop hierboven om te navigeren.")
             
