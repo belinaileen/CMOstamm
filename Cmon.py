@@ -83,7 +83,7 @@ if page == "home":
         if type == "Themes":
             options = df_thema["Thema"].dropna().unique().tolist()
         else:
-            options = test_dutch.file_options
+            options = file_options
     
 
         selected_indicator = st.selectbox("Select a Theme/an Indicator:", options)
