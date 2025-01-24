@@ -21,7 +21,7 @@ st.set_page_config(
     initial_sidebar_state="expanded")
 
 # Check the query parameter to determine which page to display
-query_params = st.experimental_get_query_params()
+query_params = st.query_params()
 page = query_params.get("page", ["home"])[0]
 
 if page == "home":
@@ -83,7 +83,7 @@ if page == "home":
         if type == "Themes":
             options = df_thema["Thema"].dropna().unique().tolist()
         else:
-            options = test.file_options
+            options = test_dutch.file_options
     
 
         selected_indicator = st.selectbox("Select a Theme/an Indicator:", options)
